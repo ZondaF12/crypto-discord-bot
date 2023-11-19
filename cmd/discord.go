@@ -166,11 +166,11 @@ func SetupDiscord(config config.EnvVars) error {
 }
 
 func PriceRounding(price float32) int {
-	if price < 1 {
+	if price < 0.0001 {
+		return 8
+	} else if price < 1 {
 		return 5
-	} else if price < 10 {
-		return 3
 	}
 
-	return 2
+	return 3
 }
