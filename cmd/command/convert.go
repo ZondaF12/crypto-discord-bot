@@ -26,7 +26,7 @@ func ConvertCrypto(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		currency = strings.ToUpper(options[2].StringValue())
 	}
 
-	embed := handlers.GetDiscordEmbed(options[0].StringValue(), currency, quantity)
+	embed := handlers.GetDiscordEmbed(strings.ToUpper(options[0].StringValue()), currency, quantity)
 
 	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		// Ignore type for now, they will be discussed in "responses"

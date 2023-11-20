@@ -18,7 +18,7 @@ func CheckCryptoPrice(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		currency = strings.ToUpper(options[1].StringValue())
 	}
 
-	embed := handlers.GetDiscordEmbed(options[0].StringValue(), currency, 0)
+	embed := handlers.GetDiscordEmbed(strings.ToUpper(options[0].StringValue()), currency, 0)
 
 	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		// Ignore type for now, they will be discussed in "responses"
