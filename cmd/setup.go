@@ -19,6 +19,6 @@ func Setup() error {
 		log.Fatalf("Invalid bot parameters: %v", err)
 		return err
 	}
-	
+
 	return nil
 }

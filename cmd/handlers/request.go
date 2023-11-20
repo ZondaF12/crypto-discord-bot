@@ -18,16 +18,16 @@ type CoinResponse struct {
 }
 
 type CoinData struct {
-	Id int
+	Id    int
 	Name  string
-	Slug string
+	Slug  string
 	Quote map[string]CoinQuote
 }
 
 type CoinQuote struct {
-	Price             float32
+	Price              float32
 	Percent_change_24h float32
-	Percent_change_7d float32
+	Percent_change_7d  float32
 }
 
 func doRequest(url string) ([]byte, error) {
@@ -35,7 +35,7 @@ func doRequest(url string) ([]byte, error) {
 	if err != nil {
 		fmt.Printf("error: %v", err)
 	}
-	
+
 	fmt.Println("Fetching latest prices...")
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)

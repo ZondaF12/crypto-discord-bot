@@ -75,9 +75,9 @@ var (
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-		"c": command.CheckCryptoPrice,
+		"c":       command.CheckCryptoPrice,
 		"convert": command.ConvertCrypto,
-		"follow": command.FollowCrypto,
+		"follow":  command.FollowCrypto,
 	}
 )
 
