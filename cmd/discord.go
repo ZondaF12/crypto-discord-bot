@@ -137,7 +137,7 @@ func SetupDiscord(config config.EnvVars) error {
 	log.Println("Adding commands...")
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
 	for i, v := range commands {
-		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, "704855585434239017", v)
+		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, "", v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
@@ -154,7 +154,7 @@ func SetupDiscord(config config.EnvVars) error {
 	log.Println("Removing commands...")
 
 	for _, v := range registeredCommands {
-		err := s.ApplicationCommandDelete(s.State.User.ID, "704855585434239017", v.ID)
+		err := s.ApplicationCommandDelete(s.State.User.ID, "", v.ID)
 		if err != nil {
 			log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
 		}
