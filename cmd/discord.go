@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ZondaF12/crypto-bot/cmd/request"
+	"github.com/ZondaF12/crypto-bot/cmd/command"
 	"github.com/ZondaF12/crypto-bot/config"
 	"github.com/bojanz/currency"
 	"github.com/bwmarrin/discordgo"
@@ -66,7 +66,7 @@ var (
 				margs = append(margs, "GBP")
 			}
 
-			res := request.FetchPrice(margs[0].(string), strings.ToUpper(margs[1].(string)))
+			res := command.FetchPrice(margs[0].(string), strings.ToUpper(margs[1].(string)))
 
 			locale := currency.NewLocale("en")
 			symbol, ok := currency.GetSymbol(strings.ToUpper(margs[1].(string)), locale)
