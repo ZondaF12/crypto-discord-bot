@@ -1,25 +1,20 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
-	"strings"
-	"time"
 
 	"github.com/ZondaF12/crypto-bot/cmd/command"
 	"github.com/ZondaF12/crypto-bot/config"
-	"github.com/bojanz/currency"
 	"github.com/bwmarrin/discordgo"
-	"github.com/leekchan/accounting"
 )
 
 var (
 	commands = []*discordgo.ApplicationCommand{
 		{
 			Name:        "c",
-			Description: "Command for demonstrating options",
+			Description: "Get current crypto price",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
@@ -35,82 +30,54 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "convert",
+			Description: "Getting crypto prices in Fiat",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "coin-symbol",
+					Description: "Coin Symbol",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "quantity",
+					Description: "Quantity",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "currency",
+					Description: "Currency",
+					Required:    false,
+				},
+			},
+		},
+		{
+			Name:        "follow",
+			Description: "Get reccuring price updates of coins",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "coin-symbol",
+					Description: "Coin Symbol",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "channel",
+					Description: "ChannelID",
+					Required:    true,
+				},
+			},
+		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-		"c": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			// Access options in the order provided by the user.
-			options := i.ApplicationCommandData().Options
-
-			// Or convert the slice into a map
-			optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
-			for _, opt := range options {
-				optionMap[opt.Name] = opt
-			}
-
-			// This example stores the provided arguments in an []interface{}
-			// which will be used to format the bot's response
-			margs := make([]interface{}, 0, len(options))
-
-			// Get the value from the option map.
-			// When the option exists, ok = true
-			if option, ok := optionMap["coin-symbol"]; ok {
-				// Option values must be type asserted from interface{}.
-				// Discordgo provides utility functions to make this simple.
-				margs = append(margs, option.StringValue())
-			}
-
-			if opt, ok := optionMap["currency"]; ok {
-				margs = append(margs, opt.StringValue())
-			} else {
-				margs = append(margs, "GBP")
-			}
-
-			res := command.FetchPrice(margs[0].(string), strings.ToUpper(margs[1].(string)))
-
-			locale := currency.NewLocale("en")
-			symbol, ok := currency.GetSymbol(strings.ToUpper(margs[1].(string)), locale)
-			if !ok {
-				symbol = "£"
-			}
-
-			coinQuote := res.Data[strings.ToUpper(margs[0].(string))][0].Quote[strings.ToUpper(margs[1].(string))]
-			ac := accounting.Accounting{Symbol: symbol, Precision: PriceRounding(coinQuote.Price)}
-
-			embed := &discordgo.MessageEmbed{
-				Type: discordgo.EmbedTypeRich,
-				URL: "https://coinmarketcap.com/currencies/" + res.Data[strings.ToUpper(margs[0].(string))][0].Slug,
-				Title: "Cryptocurrency Price Tracker",
-				Description: res.Data[strings.ToUpper(margs[0].(string))][0].Name,
-				Color: 16591219,
-				Thumbnail: &discordgo.MessageEmbedThumbnail{
-					URL: fmt.Sprintf("https://s2.coinmarketcap.com/static/img/coins/128x128/%d.png", res.Data[strings.ToUpper(margs[0].(string))][0].Id),
-				},
-				Fields: []*discordgo.MessageEmbedField{
-					{
-						Name: "**Price (24h)**",
-						Value: fmt.Sprintf("%s (%.2f%%)", ac.FormatMoney(coinQuote.Price), coinQuote.Percent_change_24h),
-					},
-					{
-						Name: "**7 Day Percentage Change**",
-						Value: fmt.Sprintf("%.2f%%", coinQuote.Percent_change_7d),
-					},
-				},
-				Footer: &discordgo.MessageEmbedFooter{
-					Text: "Made by Roo#7777",
-					IconURL: "https://i.ibb.co/VDMp2Bx/0e58a19b5a24f0542691313ff5106e40-1.png",
-				},
-				Timestamp: fmt.Sprintf("%v", time.Now().Format(time.RFC3339)),
-			}
-
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				// Ignore type for now, they will be discussed in "responses"
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Embeds: []*discordgo.MessageEmbed{embed},
-				},
-			})
-		},
+		"c": command.CheckCryptoPrice,
+		"convert": command.ConvertCrypto,
+		"follow": command.FollowCrypto,
 	}
 )
 
@@ -163,14 +130,4 @@ func SetupDiscord(config config.EnvVars) error {
 	log.Println("Gracefully shutting down.")
 
 	return nil
-}
-
-func PriceRounding(price float32) int {
-	if price < 0.0001 {
-		return 8
-	} else if price < 1 {
-		return 5
-	}
-
-	return 3
 }
