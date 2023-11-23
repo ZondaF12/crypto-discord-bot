@@ -37,9 +37,9 @@ func CloseDB() error {
 }
 
 type PriceAlert struct {
-	Coin  string `json:"coin" bson:"coin"`
-	GuildID string `json:"GuildID" bson:"GuildID"`
-	ChannelID   string `json:"ChannelID" bson:"ChannelID"`
+	Coin      string `json:"coin" bson:"coin"`
+	GuildID   string `json:"GuildID" bson:"GuildID"`
+	ChannelID string `json:"ChannelID" bson:"ChannelID"`
 }
 
 func GetPriceAlerts() []PriceAlert {
@@ -61,7 +61,7 @@ func GetPriceAlerts() []PriceAlert {
 		}
 		priceAlerts = append(priceAlerts, priceAlert)
 	}
-	
+
 	return priceAlerts
 }
 
