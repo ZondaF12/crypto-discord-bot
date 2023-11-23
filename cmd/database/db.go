@@ -42,29 +42,6 @@ type PriceAlert struct {
 	ChannelID string `json:"ChannelID" bson:"ChannelID"`
 }
 
-func GetPriceAlerts() []PriceAlert {
-	coll := GetDBCollection("Price Alerts Col")
-
-	// find all priceAlerts
-	priceAlerts := make([]PriceAlert, 0)
-	cursor, err := coll.Find(context.Background(), bson.M{})
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// iterate over the cursor
-	for cursor.Next(context.Background()) {
-		priceAlert := PriceAlert{}
-		err := cursor.Decode(&priceAlert)
-		if err != nil {
-			fmt.Println(err)
-		}
-		priceAlerts = append(priceAlerts, priceAlert)
-	}
-
-	return priceAlerts
-}
-
 func CreatePriceAlert(options []*discordgo.ApplicationCommandInteractionDataOption, guildId string) error {
 	// validate the body
 	newPriceAlert := PriceAlert{Coin: options[0].StringValue(), GuildID: guildId, ChannelID: options[1].StringValue()}
