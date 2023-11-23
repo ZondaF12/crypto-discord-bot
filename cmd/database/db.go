@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"regexp"
+	"strings"
 
 	"github.com/ZondaF12/crypto-bot/config"
 	"github.com/bwmarrin/discordgo"
@@ -42,9 +44,33 @@ type PriceAlert struct {
 	ChannelID string `json:"ChannelID" bson:"ChannelID"`
 }
 
+func GetPriceAlerts() []PriceAlert {
+	coll := GetDBCollection("Price Alerts Col")
+
+	// find all priceAlerts
+	priceAlerts := make([]PriceAlert, 0)
+	cursor, err := coll.Find(context.Background(), bson.M{})
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// iterate over the cursor
+	for cursor.Next(context.Background()) {
+		priceAlert := PriceAlert{}
+		err := cursor.Decode(&priceAlert)
+		if err != nil {
+			fmt.Println(err)
+		}
+		priceAlerts = append(priceAlerts, priceAlert)
+	}
+
+	return priceAlerts
+}
+
 func CreatePriceAlert(options []*discordgo.ApplicationCommandInteractionDataOption, guildId string) error {
 	// validate the body
-	newPriceAlert := PriceAlert{Coin: options[0].StringValue(), GuildID: guildId, ChannelID: options[1].StringValue()}
+	channelId := FilterChannelID(options[1].StringValue())
+	newPriceAlert := PriceAlert{Coin: strings.ToUpper(options[0].StringValue()), GuildID: guildId, ChannelID: channelId}
 
 	// create the price alert
 	coll := GetDBCollection("Price Alerts Col")
@@ -58,7 +84,9 @@ func CreatePriceAlert(options []*discordgo.ApplicationCommandInteractionDataOpti
 
 func RemovePriceAlert(options []*discordgo.ApplicationCommandInteractionDataOption, guildId string) int64 {
 	coll := GetDBCollection("Price Alerts Col")
-	filter := bson.D{{"coin", options[0].StringValue()}, {"ChannelID", options[1].StringValue()}, {"GuildID", guildId}}
+
+	channelId := FilterChannelID(options[1].StringValue())
+	filter := bson.D{{"coin", options[0].StringValue()}, {"ChannelID", channelId}, {"GuildID", guildId}}
 
 	result, err := coll.DeleteOne(context.Background(), filter)
 	if err != nil {
@@ -66,4 +94,20 @@ func RemovePriceAlert(options []*discordgo.ApplicationCommandInteractionDataOpti
 	}
 
 	return result.DeletedCount
+}
+
+func FilterChannelID(channelId string) string {
+	// Define a regular expression to match numbers
+	re := regexp.MustCompile("[0-9]+")
+
+	// Find all matches in the input string
+	matches := re.FindAllString(channelId, -1)
+
+	// Print the results
+	var newChannelId string
+	for _, match := range matches {
+		newChannelId = match
+	}
+
+	return newChannelId
 }

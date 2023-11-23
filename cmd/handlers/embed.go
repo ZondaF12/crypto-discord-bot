@@ -9,7 +9,7 @@ import (
 	"github.com/leekchan/accounting"
 )
 
-func GetDiscordEmbed(coin string, currencyCode string, quantity float32) *discordgo.MessageEmbed {
+func GetDiscordEmbed(coin string, currencyCode string, quantity float32, priceAlert bool) *discordgo.MessageEmbed {
 	locale := currency.NewLocale("en")
 	symbol, ok := currency.GetSymbol(currencyCode, locale)
 	if !ok {
@@ -40,7 +40,7 @@ func GetDiscordEmbed(coin string, currencyCode string, quantity float32) *discor
 		Fields: []*discordgo.MessageEmbedField{
 			{
 				Name:  "**Price (24h)**",
-				Value: fmt.Sprintf("%s (%.2f%%)", ac.FormatMoney(coinQuote.Price), coinQuote.Percent_change_24h),
+				Value: fmt.Sprintf("%s (%.2f%%)", ac.FormatMoney(totalPrice), coinQuote.Percent_change_24h),
 			},
 			{
 				Name:  "**7 Day Percentage Change**",
@@ -54,7 +54,7 @@ func GetDiscordEmbed(coin string, currencyCode string, quantity float32) *discor
 		Timestamp: fmt.Sprintf("%v", time.Now().Format(time.RFC3339)),
 	}
 
-	if quantity != 0 {
+	if quantity != 0 && !priceAlert {
 		embed.Fields = []*discordgo.MessageEmbedField{
 			{
 				Name:  "**Price**",
@@ -63,6 +63,23 @@ func GetDiscordEmbed(coin string, currencyCode string, quantity float32) *discor
 		}
 
 		embed.Title = "Cryptocurrency Price Converter"
+	}
+
+	if priceAlert {
+		embed = &discordgo.MessageEmbed{
+			Type:        discordgo.EmbedTypeRich,
+			Author: &discordgo.MessageEmbedAuthor{
+				Name:    fmt.Sprintf("%s Price Update", res.Name),
+				IconURL: fmt.Sprintf("https://s2.coinmarketcap.com/static/img/coins/128x128/%d.png", res.Id),
+			},
+			Description: fmt.Sprintf("The current price of %s is **%s**", coin, ac.FormatMoney(totalPrice)),
+			Color:       16591219,
+			Footer: &discordgo.MessageEmbedFooter{
+				Text:    "Made by Roo#7777",
+				IconURL: "https://i.ibb.co/VDMp2Bx/0e58a19b5a24f0542691313ff5106e40-1.png",
+			},
+			Timestamp: fmt.Sprintf("%v", time.Now().Format(time.RFC3339)),
+		}
 	}
 
 	return embed
@@ -81,5 +98,5 @@ func PriceRounding(price float32) int {
 		return 5
 	}
 
-	return 3
+	return 2
 }

@@ -6,6 +6,7 @@ import (
 	"os/signal"
 
 	"github.com/ZondaF12/crypto-bot/cmd/command"
+	"github.com/ZondaF12/crypto-bot/cmd/handlers"
 	"github.com/ZondaF12/crypto-bot/config"
 	"github.com/bwmarrin/discordgo"
 )
@@ -131,6 +132,8 @@ func SetupDiscord(config config.EnvVars) error {
 	}
 
 	defer s.Close()
+
+	handlers.RunPriceAlert(s)
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
