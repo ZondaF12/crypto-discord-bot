@@ -1,6 +1,8 @@
 package main
 
-import "github.com/ZondaF12/crypto-bot/cmd"
+import (
+	"github.com/ZondaF12/crypto-bot/cmd"
+)
 
 func main() {
 	// setup and run app
