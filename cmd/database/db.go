@@ -69,7 +69,7 @@ func CreatePriceAlert(options []*discordgo.ApplicationCommandInteractionDataOpti
 	// validate the body
 	newPriceAlert := PriceAlert{Coin: options[0].StringValue(), GuildID: guildId, ChannelID: options[1].StringValue()}
 
-	// create the book
+	// create the price alert
 	coll := GetDBCollection("Price Alerts Col")
 	_, err := coll.InsertOne(context.Background(), newPriceAlert)
 	if err != nil {
@@ -77,4 +77,16 @@ func CreatePriceAlert(options []*discordgo.ApplicationCommandInteractionDataOpti
 	}
 
 	return nil
+}
+
+func RemovePriceAlert(options []*discordgo.ApplicationCommandInteractionDataOption, guildId string) int64 {
+	coll := GetDBCollection("Price Alerts Col")
+	filter := bson.D{{"coin", options[0].StringValue()}, {"ChannelID", options[1].StringValue()}, {"GuildID", guildId}}
+
+	result, err := coll.DeleteOne(context.Background(), filter)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return result.DeletedCount
 }

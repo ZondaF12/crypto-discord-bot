@@ -72,12 +72,31 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "remove",
+			Description: "remove reccuring price updates of coins",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "coin-symbol",
+					Description: "Coin Symbol",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "channel",
+					Description: "ChannelID",
+					Required:    true,
+				},
+			},
+		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"c":       command.CheckCryptoPrice,
 		"convert": command.ConvertCrypto,
 		"follow":  command.FollowCrypto,
+		"remove":  command.RemoveFollowingCrypto,
 	}
 )
 
