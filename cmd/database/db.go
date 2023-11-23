@@ -86,7 +86,7 @@ func RemovePriceAlert(options []*discordgo.ApplicationCommandInteractionDataOpti
 	coll := GetDBCollection("Price Alerts Col")
 
 	channelId := FilterChannelID(options[1].StringValue())
-	filter := bson.D{{"coin", options[0].StringValue()}, {"ChannelID", channelId}, {"GuildID", guildId}}
+	filter := bson.D{{"coin", strings.ToUpper(options[0].StringValue())}, {"ChannelID", channelId}, {"GuildID", guildId}}
 
 	result, err := coll.DeleteOne(context.Background(), filter)
 	if err != nil {
