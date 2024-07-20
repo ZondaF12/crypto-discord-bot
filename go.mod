@@ -1,6 +1,6 @@
 module github.com/ZondaF12/crypto-bot
 
-go 1.21.0
+go 1.21
 
 require (
 	github.com/bojanz/currency v1.2.0
