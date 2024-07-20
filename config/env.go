@@ -1,6 +1,10 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"os"
+
+	"github.com/spf13/viper"
+)
 
 type EnvVars struct {
 	TOKEN       string `mapstructure:"TOKEN"`
@@ -9,6 +13,15 @@ type EnvVars struct {
 }
 
 func LoadConfig() (config EnvVars, err error) {
+	env := os.Getenv("GO_ENV")
+	if env == "production" {
+		return EnvVars{
+			MONGODB_URI:    os.Getenv("MONGODB_URI"),
+			TOKEN:          os.Getenv("TOKEN"),
+			CMC_API_KEY:    os.Getenv("CMC_API_KEY"),
+		}, nil
+	}
+	
 	viper.AddConfigPath(".")
 	viper.SetConfigName("app")
 	viper.SetConfigType("env")
